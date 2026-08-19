@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DUST — Voxel Shooter</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect fill='%23d4b483' width='16' height='16'/><rect fill='%236b8f3a' x='4' y='3' width='8' height='10'/></svg>" />
+    <script type="module" crossorigin src="./assets/index-Di6St-qQ.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-ClB4U1fG.css">
+  </head>
+  <body>
+    <div id="game"></div>
+
+    <div id="hud" class="hidden">
+      <div id="topbar">
+        <div class="score t-score">
+          <span class="label">T</span>
+          <span id="score-t">0</span>
+        </div>
+        <div id="round-clock">
+          <div id="timer">1:55</div>
+          <div id="round-label">Round 1 · 1st half</div>
+          <div id="side-you">You: T</div>
+        </div>
+        <div class="score ct-score">
+          <span id="score-ct">0</span>
+          <span class="label">CT</span>
+        </div>
+      </div>
+
+      <div id="objective">
+        <div id="obj-kicker">OBJECTIVE</div>
+        <div id="obj-title">YOU HAVE THE BOMB</div>
+        <div id="obj-body">Run to A or B and hold E to plant.</div>
+        <div id="obj-nav">A ↑ —m    B ↑ —m</div>
+      </div>
+      <div id="callout"></div>
+      <div id="prompt" class="hidden">HOLD E — PLANT</div>
+      <div id="killfeed"></div>
+      <div id="hitmarker"></div>
+      <div id="shot-flash"></div>
+      <div id="damage-vignette"></div>
+      <div id="crosshair">
+        <i class="n"></i><i class="e"></i><i class="s"></i><i class="w"></i>
+      </div>
+
+      <div id="bomb-bar" class="hidden">
+        <div class="bomb-label" id="bomb-action">Planting</div>
+        <div class="bomb-track"><div id="bomb-fill"></div></div>
+      </div>
+
+      <div id="hotbar">
+        <div class="slot selected" data-slot="1">
+          <div class="slot-key">1</div>
+          <div class="slot-name" id="gun-name">AK-47</div>
+        </div>
+        <div class="slot" data-slot="2">
+          <div class="slot-key">2</div>
+          <div class="slot-name">USP</div>
+        </div>
+        <div class="slot hidden" data-slot="3">
+          <div class="slot-key">3</div>
+          <div class="slot-name">RPG</div>
+        </div>
+      </div>
+
+      <div id="bottom-left">
+        <div id="health-row">
+          <span class="stat-icon">❤</span>
+          <span id="health">100</span>
+        </div>
+        <div id="armor-row">
+          <span class="stat-icon">◈</span>
+          <span id="armor">100</span>
+        </div>
+      </div>
+
+      <div id="bottom-right">
+        <div id="ammo">
+          <span id="mag">30</span>
+          <span class="ammo-sep">/</span>
+          <span id="reserve">90</span>
+        </div>
+        <div id="bomb-icon" class="hidden">💣 YOU HAVE THE BOMB</div>
+      </div>
+
+      <div id="minimap-wrap">
+        <canvas id="minimap" width="180" height="160"></canvas>
+        <div id="minimap-label">de_dust2</div>
+      </div>
+    </div>
+
+    <div id="menu">
+      <div class="menu-panel">
+        <div class="logo">
+          <span class="logo-mc">■</span> DUST
+        </div>
+        <p class="tagline">A Minecraft shooter on the Counter-Strike Dust map</p>
+        <div class="team-pick">
+          <button id="pick-t" class="team-btn t active" type="button">
+            <strong>Terrorist</strong>
+            <span>Plant the bomb at A or B</span>
+          </button>
+          <button id="pick-ct" class="team-btn ct" type="button">
+            <strong>Counter-Terrorist</strong>
+            <span>Stop the plant. Defuse if needed.</span>
+          </button>
+        </div>
+        <div class="diff-pick">
+          <button class="diff-btn" type="button" data-diff="easy">Easy</button>
+          <button class="diff-btn active" type="button" data-diff="normal">Normal</button>
+          <button class="diff-btn" type="button" data-diff="hard">Hard</button>
+          <button class="diff-btn" type="button" data-diff="expert">Expert</button>
+        </div>
+        <button id="play" type="button">Click to join the server</button>
+        <ul class="help">
+          <li><kbd>WASD</kbd> move · <kbd>Space</kbd> jump · <kbd>Shift</kbd> walk</li>
+          <li><kbd>Mouse</kbd> look · <kbd>Click</kbd> shoot · <kbd>R</kbd> reload</li>
+          <li><kbd>E</kbd> plant / defuse · walk over <span style="color:#c0392b">health</span> / <span style="color:#3a6adf">shield</span> packs</li>
+          <li>Fight for the <span style="color:#ff7722">RPG</span> at mid (Xbox) · <kbd>3</kbd> to fire it</li>
+          <li>Shoot walls and floors to carve new routes · RPG blasts a tunnel</li>
+          <li>First plant — or digging too deep — wakes the tunnels. Zombies hunt both sides.</li>
+          <li>Die and you are out until the round ends · sides swap at half</li>
+        </ul>
+      </div>
+    </div>
+
+    <div id="results" class="hidden">
+      <div class="results-panel">
+        <div id="results-kicker">MATCH OVER</div>
+        <div id="results-title">TERRORISTS WIN</div>
+        <div id="results-reason">Bomb exploded</div>
+        <div id="results-score">T  1  —  0  CT</div>
+        <div class="stat-grid">
+          <div><b id="stat-kills">0</b><span>Kills</span></div>
+          <div><b id="stat-deaths">0</b><span>Deaths</span></div>
+          <div><b id="stat-plants">0</b><span>Plants</span></div>
+          <div><b id="stat-zombies">0</b><span>Zombies</span></div>
+        </div>
+        <button id="results-next" type="button">Next Round</button>
+        <button id="results-restart" type="button">Play Again</button>
+      </div>
+    </div>
+
+    <div id="round-banner" class="hidden"></div>
+    <div id="death-overlay" class="hidden">
+      <div id="death-text">You died</div>
+      <div id="death-sub">Respawning at your spawn</div>
+      <div id="death-respawn">Back in 4…</div>
+      <div id="death-hint">Space spectates a teammate until you come back</div>
+      <button id="death-restart" type="button">Restart match</button>
+    </div>
+
+  </body>
+</html>
